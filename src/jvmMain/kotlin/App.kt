@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import components.ContextSwitcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import model.K8Pod
@@ -20,7 +21,7 @@ fun App() {
     var currentContext by remember{ mutableStateOf("") }
     val pods = remember{ mutableStateListOf<K8Pod>() }
     var isLoadingPods by remember{ mutableStateOf(false) }
-    var showContextDropdown by remember{ mutableStateOf(false) }
+
     // val commandHistory = remember{ MutableStateFlow<List<String>>(emptyList()) }
 
     suspend fun getContexts(){
@@ -69,28 +70,16 @@ fun App() {
         Scaffold { paddingValues ->
             Column(
                 modifier = Modifier.padding(paddingValues).padding(8.dp).fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Context selection
-                Row(modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    Text("Context:")
 
-                    TextButton(onClick = { showContextDropdown = !showContextDropdown }){
-                        Text(currentContext)
+                ContextSwitcher(
+                    currentContext = currentContext,
+                    contexts = contexts,
+                    onContextClick = { newContext:String ->
+                        scope.launch { setContext(newContext = newContext) }
                     }
-                    DropdownMenu(expanded = showContextDropdown, onDismissRequest = { showContextDropdown = false}, modifier = Modifier.fillMaxWidth()){
-                        contexts.forEach {
-                            DropdownMenuItem(onClick = { scope.launch { setContext(it)}; showContextDropdown = false }){
-                                val color = if(currentContext == it) MaterialTheme.colors.primary else Color.Black
-                                Text(it, color = color)
-                            }
-                        }
-                    }
-                }
-                // END Context selection
+                )
+
 
                 // Pod list
                 Column() {
