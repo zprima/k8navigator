@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import components.ContextSwitcher
+import components.PodList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import model.K8Pod
@@ -20,8 +21,9 @@ fun App() {
     val contexts = remember{ mutableStateListOf<String>() }
     var currentContext by remember{ mutableStateOf("") }
     val pods = remember{ mutableStateListOf<K8Pod>() }
-    var isLoadingPods by remember{ mutableStateOf(false) }
+    var isLoadingPods by remember { mutableStateOf(false) }
 
+    // TODO: Future stuff
     // val commandHistory = remember{ MutableStateFlow<List<String>>(emptyList()) }
 
     suspend fun getContexts(){
@@ -76,77 +78,19 @@ fun App() {
                     currentContext = currentContext,
                     contexts = contexts,
                     onContextClick = { newContext:String ->
-                        scope.launch { setContext(newContext = newContext) }
+                        setContext(newContext = newContext)
                     }
                 )
 
+                PodList(
+                    getPods = { getPods() },
+                    isLoadingPods = isLoadingPods,
+                    pods = pods,
+                    sshCommand = { podName -> sshIntoPod(podName) },
+                    logsCommand = { podName -> showLogs(podName) }
+                )
 
-                // Pod list
-                Column() {
-                    Button(onClick = {
-                        scope.launch(Dispatchers.IO) {
-                            getPods()
-                        }
-                    }) {
-                        Text("Get Pods")
-                    }
-                    Column(Modifier.padding(8.dp).verticalScroll(state = rememberScrollState())) {
-                        if (isLoadingPods) {
-                            CircularProgressIndicator()
-                        } else {
-                            pods.forEach { pod ->
-                                Column(Modifier.fillMaxWidth().padding(bottom = 16.dp).border(1.dp, Color.Red)) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(pod.metadata.name)
 
-                                        Row(
-                                            horizontalArrangement = Arrangement.End
-                                        ) {
-                                            TextButton(onClick = { scope.launch { sshIntoPod(pod.metadata.name) } }) {
-                                                Text("ssh")
-                                            }
-
-                                            TextButton(onClick = { scope.launch { showLogs(pod.metadata.name) } }) {
-                                                Text("logs")
-                                            }
-
-                                            TextButton(onClick = { }) {
-                                                Text("more")
-                                            }
-                                        }
-                                    }
-
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(pod.metadata.namespace)
-                                        Text(pod.status.phase)
-                                        Text(pod.status.startTime)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                // END Pod list
-
-                // Command history
-                Column(
-                    modifier = Modifier.background(Color.LightGray),
-                    verticalArrangement = Arrangement.Bottom,
-                ){
-
-                    Text("Command 1")
-                    Text("Command 2")
-                    Text("Command 3")
-
-                }
-                // END Command history
             }
         }
     }

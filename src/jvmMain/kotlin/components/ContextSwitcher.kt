@@ -13,7 +13,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @Composable
-fun ContextSwitcher(currentContext:String, contexts: List<String>, onContextClick: (String) -> Unit){
+fun ContextSwitcher(
+    currentContext:String,
+    contexts: List<String>,
+    onContextClick: suspend (String) -> Unit){
+
+    val scope = rememberCoroutineScope()
     var showContextDropdown by remember{ mutableStateOf(false) }
 
     Row(modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -31,7 +36,7 @@ fun ContextSwitcher(currentContext:String, contexts: List<String>, onContextClic
             modifier = Modifier.fillMaxWidth()
         ){
             contexts.forEach {
-                DropdownMenuItem(onClick = { onContextClick(it); showContextDropdown = false }){
+                DropdownMenuItem(onClick = { scope.launch { onContextClick(it); showContextDropdown = false} }){
                     val color = if(currentContext == it) MaterialTheme.colors.primary else Color.Black
                     Text(it, color = color)
                 }
