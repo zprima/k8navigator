@@ -3,6 +3,11 @@ GUI for kubectl commands
 
 Build in Componse for Desktop in Kotlin.
 
+## Must have
+
+- kubectl CLI installed
+- macos (for now)
+
 ## Distributable
 
 By default, its build for MacOS. 
