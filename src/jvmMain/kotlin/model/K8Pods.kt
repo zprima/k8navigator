@@ -1,6 +1,8 @@
 package model
 
 import kotlinx.serialization.Serializable
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Serializable
 data class K8Pods(
@@ -11,7 +13,7 @@ data class K8Pods(
 @Serializable
 data class K8Pod(
     val metadata: K8PodMetadata,
-    val spec: K8PodSpec,
+    val spec: K8PodSpec? = null,
     val status: K8PodStatus
 )
 
@@ -58,7 +60,15 @@ data class K8PodStatus(
     val containerStatuses: List<K8PodContainerStatus>,
     val phase: String,
     val startTime: String
-)
+){
+//    fun getDate(): LocalDateTime{
+//        return LocalDateTime.parse(startTime)
+//    }
+//
+//    fun timePassed(){
+//        getDate().minusSeconds(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
+//    }
+}
 
 @Serializable
 data class K8PodContainerStatus(

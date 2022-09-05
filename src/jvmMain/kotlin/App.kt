@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import components.ContextSwitcher
 import components.PodList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import model.K8Pod
 import service.K8Service
@@ -89,7 +90,6 @@ fun App() {
                     sshCommand = { podName -> sshIntoPod(podName) },
                     logsCommand = { podName -> showLogs(podName) }
                 )
-
 
             }
         }
