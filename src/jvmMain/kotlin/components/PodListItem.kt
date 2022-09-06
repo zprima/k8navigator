@@ -4,10 +4,7 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
@@ -64,6 +61,25 @@ fun PodListItem(pod: K8Pod, sshCommand: suspend (String) -> Unit, logsCommand: s
         ) {
             Text("${pod.status.phase} in ${pod.metadata.namespace}", fontSize = 12.sp)
             Text(pod.status.startTime, fontSize = 12.sp)
+        }
+
+        Column(){
+            Text("Container statuses:", fontSize = 10.sp)
+
+            pod.status.containerStatuses.forEach { cs ->
+                Column(
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text("image: ${cs.image}", fontSize = 10.sp)
+                    Text("service name: ${cs.name}", fontSize = 10.sp)
+                    Text("status: ${cs.ready}", fontSize = 10.sp)
+                    Text(
+                        text ="restart count: ${cs.restartCount}",
+                        color = if(cs.restartCount > 0) Color.Red else Color.Black,
+                        fontSize = 10.sp
+                    )
+                }
+            }
         }
     }
 }
