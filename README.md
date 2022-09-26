@@ -23,4 +23,4 @@ tasks, a task named createDistributable.
 
 - namespace support []
 - command history display at the bottom []
-- pod filter functionality []
+
