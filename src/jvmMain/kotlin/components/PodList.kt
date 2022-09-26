@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,10 +23,18 @@ fun PodList(
     logsCommand: suspend (String) -> Unit) {
 
     val scope = rememberCoroutineScope()
+    var searchText by remember { mutableStateOf("") }
 
     Column() {
-        Button(onClick = { scope.launch(Dispatchers.IO) { getPods() }}) {
-            Text("Get Pods")
+        Row() {
+            Button(onClick = { scope.launch(Dispatchers.IO) { getPods() } }) {
+                Text("Get Pods")
+            }
+
+            TextField(
+                value = searchText,
+                onValueChange = { searchText = it }
+            )
         }
         Column(
             modifier = Modifier
@@ -36,7 +45,7 @@ fun PodList(
             if (isLoadingPods) {
                 CircularProgressIndicator()
             } else {
-                pods.forEach { pod ->
+                pods.filter { pod -> if(searchText.length > 0) pod.metadata.name.contains(searchText, ignoreCase = true) else true }.forEach { pod ->
                     PodListItem(
                         pod = pod,
                         sshCommand = sshCommand,
