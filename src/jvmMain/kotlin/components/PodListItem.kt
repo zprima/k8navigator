@@ -1,14 +1,16 @@
 package components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +25,7 @@ import java.util.Calendar
 @Composable
 fun PodListItem(pod: K8Pod, sshCommand: suspend (String) -> Unit, logsCommand: suspend (String) -> Unit) {
     val scope = rememberCoroutineScope()
+    var showMore by remember { mutableStateOf(false) }
     val podColor = if(pod.status.phase == "Running") Color(0xFF008080) else Color.Black
 
     Column(
@@ -38,8 +41,21 @@ fun PodListItem(pod: K8Pod, sshCommand: suspend (String) -> Unit, logsCommand: s
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            SelectionContainer {
-                Text(pod.metadata.name, style = TextStyle(color = podColor))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = { showMore = !showMore }
+                ) {
+                    if (showMore) {
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                    } else
+                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = null)
+                }
+
+                SelectionContainer {
+                    Text(pod.metadata.name, style = TextStyle(color = podColor))
+                }
             }
 
             Row(
@@ -55,29 +71,34 @@ fun PodListItem(pod: K8Pod, sshCommand: suspend (String) -> Unit, logsCommand: s
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("${pod.status.phase} in ${pod.metadata.namespace}", fontSize = 12.sp)
-            Text(pod.status.startTime, fontSize = 12.sp)
-        }
+        AnimatedVisibility(showMore) {
+            Column() {
 
-        Column(){
-            Text("Container statuses:", fontSize = 10.sp)
-
-            pod.status.containerStatuses.forEach { cs ->
-                Column(
-                    modifier = Modifier.padding(8.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("image: ${cs.image}", fontSize = 10.sp)
-                    Text("service name: ${cs.name}", fontSize = 10.sp)
-                    Text("status: ${cs.ready}", fontSize = 10.sp)
-                    Text(
-                        text ="restart count: ${cs.restartCount}",
-                        color = if(cs.restartCount > 0) Color.Red else Color.Black,
-                        fontSize = 10.sp
-                    )
+                    Text("${pod.status.phase} in ${pod.metadata.namespace}", fontSize = 12.sp)
+                    Text(pod.status.startTime, fontSize = 12.sp)
+                }
+
+                Column() {
+                    Text("Container statuses:", fontSize = 10.sp)
+
+                    pod.status.containerStatuses.forEach { cs ->
+                        Column(
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text("image: ${cs.image}", fontSize = 10.sp)
+                            Text("service name: ${cs.name}", fontSize = 10.sp)
+                            Text("status: ${cs.ready}", fontSize = 10.sp)
+                            Text(
+                                text = "restart count: ${cs.restartCount}",
+                                color = if (cs.restartCount > 0) Color.Red else Color.Black,
+                                fontSize = 10.sp
+                            )
+                        }
+                    }
                 }
             }
         }

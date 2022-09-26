@@ -1,14 +1,16 @@
 package components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,14 +28,23 @@ fun PodList(
     var searchText by remember { mutableStateOf("") }
 
     Column() {
-        Row() {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Button(onClick = { scope.launch(Dispatchers.IO) { getPods() } }) {
                 Text("Get Pods")
             }
 
             TextField(
                 value = searchText,
-                onValueChange = { searchText = it }
+                onValueChange = { searchText = it },
+                singleLine = true,
+                placeholder = { Text("Filter pods by name")},
+                shape = RectangleShape,
+                modifier = Modifier.background(Color.White),
+                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
+                trailingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
             )
         }
         Column(
